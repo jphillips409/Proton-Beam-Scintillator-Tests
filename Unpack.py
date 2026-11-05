@@ -120,7 +120,7 @@ def GetFile():
 
     # Feb 14, 2026
     # 10 pulses
-    file = r'ProtonBeam_Feb14_2026_10pulses_a/RAW/SDataR_ProtonBeam_Feb14_2026_10pulses_a.csv'
+    #file = r'ProtonBeam_Feb14_2026_10pulses_a/RAW/SDataR_ProtonBeam_Feb14_2026_10pulses_a.csv'
     #file = r'ProtonBeam_Feb14_2026_10pulses_b/RAW/SDataR_ProtonBeam_Feb14_2026_10pulses_b.csv'
     #file = r'ProtonBeam_Feb14_2026_10pulses_c/RAW/SDataR_ProtonBeam_Feb14_2026_10pulses_c.csv'
 
@@ -140,6 +140,66 @@ def GetFile():
     #file = r'ProtonBeam_Feb14_2026_BareFib_c/RAW/SDataR_ProtonBeam_Feb14_2026_BareFib_c.csv'
 
     ###################################################
+
+    # Apr 25, 2026
+    #filepath = Path(r"../Data/April25_2026")
+
+
+    # 50 pulses
+
+    # 15.15 us width
+    #file = r'ProtonBeam_April25_2026_Run1/RAW/SDataR_ProtonBeam_April25_2026_Run1.csv'
+    #file = r'ProtonBeam_April25_2026_Run2/RAW/SDataR_ProtonBeam_April25_2026_Run2.csv'
+
+    # 5 us width
+    #file = r'ProtonBeam_April25_2026_Run3/RAW/SDataR_ProtonBeam_April25_2026_Run3.csv'
+    #file = r'ProtonBeam_April25_2026_Run4/RAW/SDataR_ProtonBeam_April25_2026_Run4.csv'
+
+    # 10 us width
+    #file = r'ProtonBeam_April25_2026_Run5/RAW/SDataR_ProtonBeam_April25_2026_Run5.csv'
+    #file = r'ProtonBeam_April25_2026_Run6/RAW/SDataR_ProtonBeam_April25_2026_Run6.csv'
+
+    # 17 us width
+    #file = r'ProtonBeam_April25_2026_Run7/RAW/SDataR_ProtonBeam_April25_2026_Run7.csv'
+    #file = r'ProtonBeam_April25_2026_Run8/RAW/SDataR_ProtonBeam_April25_2026_Run8.csv'
+
+    # 24 us width
+    #file = r'ProtonBeam_April25_2026_Run9/RAW/SDataR_ProtonBeam_April25_2026_Run9.csv'
+    #file = r'ProtonBeam_April25_2026_Run10/RAW/SDataR_ProtonBeam_April25_2026_Run10.csv'
+
+    # 30 us width
+    #file = r'ProtonBeam_April25_2026_Run11/RAW/SDataR_ProtonBeam_April25_2026_Run11.csv'
+    #file = r'ProtonBeam_April25_2026_Run12/RAW/SDataR_ProtonBeam_April25_2026_Run12.csv'
+
+    # 2.3 us width
+    #file = r'ProtonBeam_April25_2026_Run13/RAW/SDataR_ProtonBeam_April25_2026_Run13.csv'
+    #file = r'ProtonBeam_April25_2026_Run14/RAW/SDataR_ProtonBeam_April25_2026_Run14.csv'
+
+    # 10 us width with beam rate divider of 2
+    #file = r'ProtonBeam_April25_2026_Run15/RAW/SDataR_ProtonBeam_April25_2026_Run15.csv'
+
+    # Digitizer testing data
+    filepath = Path(r"../Data/Testing")
+
+    #file = r'SDataR_PulserTest_50waves_June23_26.csv'
+
+    # Run log excel contains info
+    #file = r'SDataR_PulserTest_June23_26_run1.csv'
+    #file = r'SDataR_PulserTest_June23_26_run2.csv'
+    #file = r'SDataR_PulserTest_June23_26_run3.csv'
+    #file = r'SDataR_PulserTest_June23_26_run4.csv'
+    #file = r'SDataR_PulserTest_June23_26_run5.csv'
+    #file = r'SDataR_PulserTest_June23_26_run6.csv'
+    #file = r'SDataR_PulserTest_June23_26_run7.csv'
+    #file = r'SDataR_PulserTest_June23_26_run8.csv'
+    #file = r'SDataR_PulserTest_June23_26_run9.csv'
+    file = r'SDataR_PulserTest_June23_26_run10.csv'
+    #file = r'SDataR_PulserTest_June23_26_run11.csv'
+    #file = r'SDataR_PulserTest_June23_26_run12.csv'
+    #file = r'SDataR_PulserTest_June23_26_run13.csv'
+    #file = r'SDataR_PulserTest_June23_26_run14.csv'
+    #file = r'SDataR_PulserTest_June23_26_run15.csv'
+
 
     return filepath / file, file
 
@@ -177,6 +237,8 @@ def main():
 
     alldat = True
     wavesdat = True
+    # Turn wavesgrid on if you want to plot a large grid of E discriminated waves
+    wavesgrid = False
     data = Unpack(datafile, alldat, wavesdat)
 
     # Array to check event type
@@ -190,18 +252,25 @@ def main():
     traces = []
     flags = []
 
+    probe = [] # may occur
+
     satevents = 0 #  Counts the number of saturated events
 
     # Now fill in the data
     # Check event type before the loop, don't want to loop the event type check again and again
     for i in range(len(data)):
+        probeoff = 0
+        if data[i][1] != 0: continue
         channel.append(data[i][1])
         time.append(data[i][2])
         energy.append(data[i][3])
         if data[i][5] == 16512: satevents +=1
         energy_short.append(data[i][4])
         flags.append(data[i][5])
-        if wavesdat is True: traces.append(data[i][6:])
+        if data[i][6] == 1: # checks if probe value is there, not sure what it does
+            probe.append(data[i][6])
+            probeoff = 1
+        if wavesdat is True: traces.append(data[i][6 + probeoff:])
 
     print("Data unpacked")
     print("Num saturated events: ", satevents)
@@ -214,11 +283,25 @@ def main():
     traces = np.array(traces)
     flags = np.array(flags)
 
+    for i in range(len(flags)):
+        if flags[i] != 16384:
+            print('Flags other than 0x4000 at index: ', i, ' and flag: ', f'0x{int(flags[i]):x}')
+
     # Get energies discriminated on elow and ehigh
     # Will return all arrays using Ecuts
     elow = 50 # if 0, not used
     ehigh = 4000 # if 0, not used
     energy_disc, energy_short_disc, time_disc, channel_disc, traces_disc = EDisc(energy,energy_short, time, channel, traces,elow,ehigh)
+
+    # Array of times relative to something
+    # Choose first pulse as t = 0
+    time_disc_rel = time_disc - time_disc[0]
+    print("Time array relative to 1st pulse: ")
+    for i in range(len(time_disc_rel)):
+     print(time_disc_rel[i]/(10**9), " ", energy_disc[i]/100)
+
+    #print("Time array relative to 1st pulse: ", time_disc_rel/(10**12))
+
     # Specify a number of bins
     nbins = 512
 
@@ -228,7 +311,7 @@ def main():
     fig_rawE, ax_rawE = plt.subplots()
     ax_rawE.hist(energy, bins=nbins, range=[0, 4095])
     ax_rawE.set_title('Raw Energies')
-    ax_rawE.set_xlabel('ADC Channel')
+    ax_rawE.set_xlabel('Q (ADC Channels)')
     ax_rawE.set_ylabel('Counts')
     plt.show()
 
@@ -237,10 +320,10 @@ def main():
 
     # Plot of energies vs index (raw)
     plot_EvsT, ax_EvsT = plt.subplots()
-    xspace = np.linspace(0, len(channel),len(channel))
+    xspace = np.linspace(0, len(channel)-1,len(channel))
     ax_EvsT.scatter(xspace, energy)
-    ax_EvsT.set_ylabel('ADC Channel')
-    ax_EvsT.set_xlabel('index')
+    ax_EvsT.set_ylabel('Q (ADC Channels)')
+    ax_EvsT.set_xlabel('Event Index')
     figgrid_name = savename + '_EvsID'
     plt.savefig(figurepath / (figgrid_name + '.eps'), format='eps')
     plt.savefig(figurepath / (figgrid_name + '.png'), format='png')
@@ -248,14 +331,23 @@ def main():
     plt.show()
     plt.show()
 
+    # Plot of energies vs Time (raw)
+    plot_EvsT, ax_EvsT = plt.subplots()
+    ax_EvsT.scatter(time/(10**12), energy)
+    ax_EvsT.set_ylabel('Q (ADC Channels)')
+    ax_EvsT.set_xlabel('Time since Run Start (s)')
+    #ax_EvsT.set_ylim(900,1500)
+    #ax_EvsT.set_ylim(0,600) # Without scintillator
+    plt.show()
+
     # Plot of energies vs Time (discriminated)
     plot_dEvsT, ax_dEvsT = plt.subplots()
-    xspace = np.linspace(1, len(channel),len(channel))
-    ax_dEvsT.scatter(time_disc/(10**12), energy_disc)
-    ax_dEvsT.set_ylabel('ADC Channel')
-    ax_dEvsT.set_xlabel('Time (s)')
+    ax_dEvsT.scatter(time_disc_rel/(10**9), energy_disc)
+    ax_dEvsT.set_ylabel('Q (ADC Channels)')
+    ax_dEvsT.set_xlabel('Time Since First Pulse (ms)')
     #ax_dEvsT.set_ylim(900,1500)
-    ax_dEvsT.set_ylim(0,600) # Without scintillator
+   # ax_dEvsT.set_xlim(2.54,None)
+    #ax_dEvsT.set_ylim(0,600) # Without scintillator
 
     figgrid_name = savename + '_discEvsT'
     plt.savefig(figurepath / (figgrid_name + '.eps'), format='eps')
@@ -272,61 +364,117 @@ def main():
     wavetime = wavetime * 2
 
     # Plot raw traces 1 at a time
-    plot_dtraces, ax_dtraces = plt.subplots()
-    ax_dtraces.plot(wavetime,traces[11])
-    #plt.xlim(500,1500)
+    plot_dtraces, ax_dtraces = plt.subplots(layout='constrained')
+    ax_dtraces.plot(wavetime,traces[0])
+    ax_dtraces.set_xlabel('Time (ns)')
+    ax_dtraces.set_ylabel('ADC Channels')
+    ax_dtraces.set_ylim(12500,13200)
+    #plt.xlim(701,1299)
     plt.show()
 
     # Plot discriminated traces 1 at a time
-    plot_dtraces, ax_dtraces = plt.subplots()
-    ax_dtraces.plot(wavetime,traces_disc[11])
-    #plt.xlim(500,1500)
+    plot_dtraces, ax_dtraces = plt.subplots(layout='constrained')
+    ax_dtraces.plot(wavetime,traces_disc[0])
+    print("first value ", traces_disc[0][0])
+    ax_dtraces.set_xlabel('Time (ns)')
+    ax_dtraces.set_ylabel('ADC Channels')
+    ax_dtraces.set_ylim(10000,16000)
+    #plt.xlim(500,25000)
     plt.show()
 
-    # make a window plot showing each real traces
-    # Find number of windows needed using 5 columns
-    numcols = 5
-    if len(traces_disc) > 50: numcols = 10
-    numrows = math.ceil(len(traces_disc)/numcols)
 
-    windowsize = (20,20)
-    if len(traces_disc) > 50: windowsize = (40,40)
+    # Calculate Q using wave forms
+    pretrg = 1000 # Digitization length prior to trigger (ns)
+    pregt = 50 # integration prior to trigger. Where long gate starts (ns)
+    longgt = 5000 # integration gate (ns)
 
-    fig_multtrac, ax_multtrac = plt.subplots(numrows,numcols,sharex=True,sharey=True, figsize=windowsize,layout='compressed')
-    axes_flat = ax_multtrac.flatten()
+    integratelow = int((pretrg-pregt)/2)
+    integratehigh = int((longgt-pretrg-pregt)/2) # Add 1? Not sure
 
-    for i, ax in enumerate(axes_flat):
-        if i < len(traces_disc):
-            pulselabel = 'Pulse ' + str(i+1)
-            ax.set_box_aspect(1)
-            ax.plot(wavetime, traces_disc[i])
-            ax.text(0.95,0.05,pulselabel,transform=ax.transAxes,ha='right',va='bottom',)
-            #ax.legend(loc='lower right')
+    print("Integrating pulses between indices: ", integratelow, " - ", integratehigh)
 
-            axes_flat[i].label_outer()
-        else:
-            axes_flat[i].remove()
-    # Manually re-enable labels for plots that have nothing below them
-    for i in range(len(traces_disc)):
-        # If the index plus one column width is outside the plot count, it's a bottom plot
-        if i + 5 >= len(traces_disc):
-            axes_flat[i].tick_params(labelbottom=True)
-    fig_multtrac.canvas.draw()
-    xaxis_shift = 0
-    last_ax = axes_flat[len(traces_disc) -1]
-    renderer = fig_multtrac.canvas.get_renderer()
-    bbox = last_ax.get_tightbbox(renderer)
-    xaxis_shift = fig_multtrac.transFigure.inverted().transform((0, bbox.y0))[1] - 0.02
+    bkgsamples = 50 # how many points (pre-trigger) do you take for averaging the background
+    pulseQ = []
+    for i in range(len(traces)):
+        background = np.mean(traces[i][0:bkgsamples])
+        bkgsubtracted = background - traces[i][integratelow:integratehigh]
+        pulseQ.append(np.sum(bkgsubtracted))
 
-    fig_multtrac.supxlabel('Time (ns)',fontsize=30,y=xaxis_shift)
-    fig_multtrac.supylabel('ADC Channels',fontsize=30)
-    #plt.subplots_adjust(wspace=0.1, hspace=0.1)
+    pulseQ = np.array(pulseQ)
+    print(pulseQ)
 
-    figgrid_name = savename + '_wavegrid'
-    plt.savefig(figurepath / (figgrid_name + '.eps'), format='eps')
-    plt.savefig(figurepath / (figgrid_name + '.png'), format='png')
-    plt.savefig(figurepath / (figgrid_name + '.svg'), format='svg')
+    # Plot calculated Q vs CAEN Q
+    plot_RQvsQ, ax_RQvsQ = plt.subplots()
+    ax_RQvsQ.scatter(pulseQ,energy)
+    ax_RQvsQ.set_xlabel('Recalculated Q')
+    ax_RQvsQ.set_ylabel('CAEN Calculated Q (ADC Channels)')
     plt.show()
+
+    # Looping over a specific trace to print some stuff
+    first20 = 0
+    peakamp = []
+    for j in range(len(traces)):
+        lowest = 0
+        for i in range(len(traces[j])):
+            if i == 0: lowest = traces[j][i]
+            elif lowest > traces[j][i]: lowest = traces[j][i]
+        peakamp.append(lowest)
+    peakamp = np.array(peakamp)
+   # print(peakamp)
+
+    # Peak amplitude vs Q
+    plot_EvsAmp, ax_EvsAmp = plt.subplots(layout='constrained')
+    ax_EvsAmp.scatter(energy,peakamp)
+    ax_EvsAmp.set_xlabel('Q (ADC Channels)')
+    ax_EvsAmp.set_ylabel('Peak Amplitude (ADC Channels)')
+    plt.show()
+
+    if wavesgrid == True:
+
+        # make a window plot showing each real traces
+        # Find number of windows needed using 5 columns
+        numcols = 5
+        if len(traces_disc) > 50: numcols = 10
+        numrows = math.ceil(len(traces_disc)/numcols)
+
+        windowsize = (20,20)
+        if len(traces_disc) > 50: windowsize = (40,40)
+
+        fig_multtrac, ax_multtrac = plt.subplots(numrows,numcols,sharex=True,sharey=True, figsize=windowsize,layout='compressed')
+        axes_flat = ax_multtrac.flatten()
+
+        for i, ax in enumerate(axes_flat):
+            if i < len(traces_disc):
+                pulselabel = 'Pulse ' + str(i)
+                ax.set_box_aspect(1)
+                ax.plot(wavetime, traces_disc[i])
+                ax.text(0.95,0.05,pulselabel,transform=ax.transAxes,ha='right',va='bottom',)
+                #ax.legend(loc='lower right')
+
+                axes_flat[i].label_outer()
+            else:
+                axes_flat[i].remove()
+        # Manually re-enable labels for plots that have nothing below them
+        for i in range(len(traces_disc)):
+            # If the index plus one column width is outside the plot count, it's a bottom plot
+            if i + 5 >= len(traces_disc):
+                axes_flat[i].tick_params(labelbottom=True)
+        fig_multtrac.canvas.draw()
+        xaxis_shift = 0
+        last_ax = axes_flat[len(traces_disc) -1]
+        renderer = fig_multtrac.canvas.get_renderer()
+        bbox = last_ax.get_tightbbox(renderer)
+        xaxis_shift = fig_multtrac.transFigure.inverted().transform((0, bbox.y0))[1] - 0.02
+
+        fig_multtrac.supxlabel('Time (ns)',fontsize=30,y=xaxis_shift)
+        fig_multtrac.supylabel('ADC Channels',fontsize=30)
+        #plt.subplots_adjust(wspace=0.1, hspace=0.1)
+
+        figgrid_name = savename + '_wavegrid'
+        plt.savefig(figurepath / (figgrid_name + '.eps'), format='eps')
+        plt.savefig(figurepath / (figgrid_name + '.png'), format='png')
+        plt.savefig(figurepath / (figgrid_name + '.svg'), format='svg')
+        plt.show()
 
 
 main()
